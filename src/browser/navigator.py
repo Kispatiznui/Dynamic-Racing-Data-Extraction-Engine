@@ -1,12 +1,24 @@
 from selenium.webdriver.common.by import By
-import time
+from src.browser.waits import wait_for
+from src.core.logger import get_logger
+
+logger = get_logger()
 
 def navigate_to_stats(driver, url):
+    logger.info(f"Opening: {url}")
+
     driver.get(url)
 
-    time.sleep(5)
+    try:
+        stats_tab = wait_for(
+            driver,
+            By.XPATH,
+            "//a[contains(text(),'Stats')]"
+        )
 
-    stats_tab = driver.find_element(By.XPATH, "//a[contains(text(),'Stats')]")
-    stats_tab.click()
+        stats_tab.click()
 
-    time.sleep(5)
+        logger.info("Stats tab opened")
+
+    except Exception as e:
+        logger.error(f"Navigation error: {e}")
