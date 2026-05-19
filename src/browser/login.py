@@ -1,20 +1,28 @@
 from selenium.webdriver.common.by import By
-import time
 from src.browser.driver import create_driver
+from src.browser.waits import wait_for
+from src.core.logger import get_logger
+
+logger = get_logger()
 
 def login(username, password):
     driver = create_driver()
 
+    logger.info("Opening RacingPost...")
+
     driver.get("https://www.racingpost.com")
 
-    time.sleep(3)
+    try:
+        wait_for(driver, By.NAME, "username").send_keys(username)
+        wait_for(driver, By.NAME, "password").send_keys(password)
 
-    # NOTA: estos selectores probablemente se ajustan luego
-    driver.find_element(By.NAME, "username").send_keys(username)
-    driver.find_element(By.NAME, "password").send_keys(password)
+        wait_for(driver, By.XPATH, "//button[contains(text(),'Log')]").click()
 
-    driver.find_element(By.XPATH, "//button[contains(text(),'Log')]").click()
+        logger.info("Login successful")
 
-    time.sleep(5)
+    except Exception as e:
+        logger.error(f"Login failed: {e}")
+        driver.quit()
+        raise
 
     return driver
